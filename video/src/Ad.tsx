@@ -1,5 +1,8 @@
 import React from 'react';
-import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, Easing, Img, interpolate, staticFile, useCurrentFrame } from 'remotion';
+
+export const SLOW = 1.8;
+export const BASE_FRAMES = 930;
 
 const C = {
   paper: '#fbfaf7', stone: '#f3f1ec', ink: '#1b1a17', ink2: '#6b675f', ink3: '#a39f95',
@@ -22,11 +25,11 @@ const FONTS = `
 
 /* ---------- timeline ---------- */
 const CARDS = [
-  { a: 0, b: 80, kind: 'rise', l1: 'One window for', l2: 'every coding agent.' },
-  { a: 80, b: 140, kind: 'track', l1: 'Start any agent', l2: 'with ⌘T.' },
-  { a: 290, b: 350, kind: 'wipe', l1: 'See them all', l2: 'at a glance.' },
-  { a: 475, b: 535, kind: 'zoom', l1: 'Know which one', l2: 'needs you.' },
-  { a: 655, b: 715, kind: 'lines', l1: 'Type an agent in any shell.', l2: 'Shoal knows.' },
+  { a: 0, b: 80, kind: 'rise', l1: 'One window for', l2: 'every coding agent.', sub: 'Run Claude Code, Codex, Hermes and more side by side, each in its own session.' },
+  { a: 80, b: 140, kind: 'track', l1: 'Start any agent', l2: 'with ⌘T.', sub: 'Pick an agent, switch on the flags you want, press Enter.' },
+  { a: 290, b: 350, kind: 'wipe', l1: 'See them all', l2: 'at a glance.', sub: 'Every session lives in the sidebar. A green pulse means it is working.' },
+  { a: 475, b: 535, kind: 'zoom', l1: 'Know which one', l2: 'needs you.', sub: 'When an agent asks you something, its session turns clay. Click it to answer.' },
+  { a: 655, b: 715, kind: 'lines', l1: 'Type an agent in any shell.', l2: 'Shoal knows.', sub: 'Start omp, claude or codex from a plain shell and the session updates itself.' },
 ] as const;
 const DEMOS: [number, number][] = [[136, 294], [346, 479], [531, 659], [711, 836]];
 const END = 832;
@@ -393,9 +396,11 @@ const Card: React.FC<{ f: number; card: (typeof CARDS)[number] }> = ({ f, card }
       </div>
     );
   }
+  const sp = t(lf, 30, 48);
   return (
     <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center', opacity: 1 - out, filter: `blur(${out * 12}px)`, transform: `scale(${1 - out * 0.03})` }}>
       {body}
+      <div style={{ fontFamily: SANS, fontSize: 34, lineHeight: 1.4, color: C.ink2, marginTop: 56, maxWidth: 1100, textAlign: 'center', opacity: sp, transform: `translateY(${(1 - sp) * 12}px)` }}>{card.sub}</div>
     </AbsoluteFill>
   );
 };
@@ -415,23 +420,21 @@ const EndCard: React.FC<{ f: number }> = ({ f }) => {
       <div style={{ fontFamily: SANS, fontSize: 32, color: C.ink2, marginTop: 30, opacity: t(lf, 36, 56), transform: `translateY(${(1 - t(lf, 36, 60)) * 10}px)` }}>
         Every coding agent, one calm window.
       </div>
-      <div style={{ display: 'flex', gap: 14, marginTop: 36, opacity: t(lf, 50, 70) }}>
-        {['Free', 'Open source', 'macOS'].map((x) => (
-          <span key={x} style={{ fontFamily: SANS, fontWeight: 500, fontSize: 20, color: C.ink2, padding: '10px 20px', borderRadius: 99, background: C.paper, boxShadow: `0 0 0 1px ${C.line}` }}>{x}</span>
-        ))}
-      </div>
     </AbsoluteFill>
   );
 };
 
 export const Ad: React.FC = () => {
-  const f = useCurrentFrame();
+  const raw = useCurrentFrame();
+  const f = raw / SLOW;
+  const total = Math.ceil(BASE_FRAMES * SLOW);
   const demo = DEMOS.find(([a, b]) => f >= a && f < b);
   const dO = demo ? seg(f, demo[0], demo[1], 14) : 0;
 
   return (
     <AbsoluteFill style={{ background: C.stone, color: C.ink, fontFamily: SANS }}>
       <style>{FONTS}</style>
+      <Audio src={staticFile('music.wav')} volume={(fr) => interpolate(fr, [0, 20, total - 60, total], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })} />
       {CARDS.filter((c) => f >= c.a && f < c.b).map((c) => <Card key={c.a} f={f} card={c} />)}
       {demo && (
         <AbsoluteFill style={{ opacity: dO, filter: `blur(${(1 - dO) * 10}px)`, transform: `scale(${0.97 + 0.03 * dO})` }}>
