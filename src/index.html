@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';" />
+  <title>Shoal</title>
+  <link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <aside id="sidebar">
+    <div class="drag"></div>
+    <div class="wordmark">
+      <svg class="mark" viewBox="270 290 500 444" aria-hidden="true"><g><rect x="286" y="310" width="150" height="56" rx="28" opacity="0.4"/><rect x="286" y="658" width="150" height="56" rx="28" opacity="0.4"/><rect x="412" y="397" width="176" height="56" rx="28" opacity="0.72"/><rect x="412" y="571" width="176" height="56" rx="28" opacity="0.72"/></g><rect class="lead" x="560" y="484" width="190" height="56" rx="28"/></svg>
+      <span>Shoal</span>
+    </div>
+
+    <button id="new-btn" class="new-btn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12" /></svg>
+      <span>New session</span>
+      <span class="hint">⌘T</span>
+    </button>
+
+    <div class="section-label">Sessions</div>
+    <ul id="sessions"></ul>
+
+    <div class="side-foot">
+      <div id="summary" class="summary"></div>
+      <button id="theme-btn" class="theme-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 3v1.5M12 19.5V21M3 12h1.5M19.5 12H21M5.6 5.6l1.1 1.1M17.3 17.3l1.1 1.1M5.6 18.4l1.1-1.1M17.3 6.7l1.1-1.1" /></svg>
+        <svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></svg>
+      </button>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div class="aurora" aria-hidden="true"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
+    <header id="header">
+      <div id="header-title"></div>
+      <div id="header-status"></div>
+    </header>
+    <div id="terminals"></div>
+
+    <section id="empty">
+      <div class="drag-top"></div>
+      <div class="empty-inner">
+        <h1>All your agents,<br /><em>in one window.</em></h1>
+        <p>Claude, Hermes, Codex and any shell, side by side. Shoal lights up the one that needs you.</p>
+        <div id="quick"></div>
+        <div class="empty-hint">or press <span class="hint">⌘T</span></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="palette" class="hidden">
+    <div class="palette-card">
+      <div id="step-pick">
+        <div class="palette-search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>
+          <input id="palette-input" placeholder="Start a session" spellcheck="false" autocomplete="off" />
+        </div>
+        <ul id="palette-list"></ul>
+      </div>
+      <div id="step-opts" class="hidden">
+        <div class="opts-head">
+          <button id="opts-back" class="back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6" /></svg></button>
+          <div id="opts-title"></div>
+        </div>
+        <div id="opts-body"></div>
+        <div class="opts-extra">
+          <label for="opts-args">Extra arguments</label>
+          <input id="opts-args" spellcheck="false" autocomplete="off" placeholder="--model opus" />
+        </div>
+        <div class="opts-preview"><span class="prompt">$</span><code id="opts-cmd"></code></div>
+      </div>
+      <div class="palette-foot">
+        <button id="folder-btn" class="folder-btn">
+          <span class="muted">in</span> <span id="folder-label"></span>
+          <span class="change">Change</span>
+        </button>
+        <div class="keys" id="keys"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../node_modules/@xterm/xterm/lib/xterm.js"></script>
+  <script src="../node_modules/@xterm/addon-fit/lib/addon-fit.js"></script>
+  <script src="../node_modules/@xterm/addon-web-links/lib/addon-web-links.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
