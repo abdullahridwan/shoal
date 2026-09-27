@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, staticFile } from 'remotion';
+import { AbsoluteFill, Img, staticFile } from 'remotion';
 
 const FONTS = `
 @font-face { font-family: ShoalSans; src: url(${staticFile('inter.woff2')}); font-weight: 100 900; }
@@ -49,7 +49,10 @@ export const Brand: React.FC = () => (
   <AbsoluteFill style={{ background: '#F3F1EC', color: '#1B1A17', padding: 90, fontFamily: SANS }}>
     <style>{FONTS}</style>
     <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderBottom: '1px solid rgba(27,26,23,0.12)', paddingBottom: 36 }}>
-      <div style={{ fontFamily: SERIF, fontSize: 150, letterSpacing: '-0.035em', lineHeight: 0.9 }}>Shoal</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
+        <Img src={staticFile('mark.svg')} style={{ width: 130, height: 126 }} />
+        <div style={{ fontFamily: SERIF, fontSize: 150, letterSpacing: '-0.035em', lineHeight: 0.9 }}>Shoal</div>
+      </div>
       <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 46, color: '#C96442' }}>Brand kit</div>
     </div>
 

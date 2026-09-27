@@ -119,6 +119,7 @@ function autoName(agent) {
 async function createSession(agent) {
   closePalette();
   const command = commandFor(agent);
+  rememberDir(cwd);
   const id = `s${++seq}`;
   const el = document.createElement('div');
   el.className = 'term';
@@ -289,8 +290,25 @@ function renderPalette() {
 }
 
 function choose(a) {
-  if (!a.cmd) return createSession(a);
   showOpts(a);
+}
+
+function renderFolder() {
+  $('#of-path').textContent = tildify(cwd);
+  $('#folder-label').textContent = tildify(cwd);
+  const recents = store.get('recentDirs', []).filter((d) => d !== home).slice(0, 6);
+  $('#of-recent').innerHTML = recents.map((d, i) =>
+    `<button class="of-chip${d === cwd ? ' on' : ''}" data-i="${i}" title="${esc(d)}">${esc(basename(d))}</button>`).join('');
+  $('#of-recent').querySelectorAll('.of-chip').forEach((b) =>
+    b.addEventListener('click', () => { cwd = recents[+b.dataset.i]; renderFolder(); }));
+}
+async function chooseFolder() {
+  const p = await window.shoal.pickFolder(cwd);
+  if (p) cwd = p;
+  renderFolder();
+}
+function rememberDir(d) {
+  store.set('recentDirs', [d, ...store.get('recentDirs', []).filter((x) => x !== d)].slice(0, 12));
 }
 
 function showOpts(a) {
@@ -300,16 +318,19 @@ function showOpts(a) {
   $('#step-opts').classList.remove('hidden');
   $('#opts-title').innerHTML = `${logoHTML(a)}<span>${a.label}</span>`;
   $('#opts-args').value = cfgOf(a).extra || '';
+  renderFolder();
   renderOpts();
   $('#opts-args').blur();
-  $('#keys').innerHTML = '<span class="hint">space</span> toggle <span class="hint">tab</span> args <span class="hint">↵</span> launch';
+  $('#keys').innerHTML = '<span class="hint">⌘O</span> folder <span class="hint">space</span> toggle <span class="hint">↵</span> launch';
 }
 
 function renderOpts() {
   const a = optAgent;
   const cfg = cfgOf(a);
   const body = $('#opts-body');
-  if (!a.opts.length) {
+  if (!a.cmd) {
+    body.innerHTML = '';
+  } else if (!a.opts.length) {
     body.innerHTML = '<div class="opt"><div class="txt"><span class="d">No presets for this agent. Add any flags below.</span></div></div>';
   } else {
     body.innerHTML = a.opts.map((o, i) => {
@@ -333,7 +354,7 @@ function renderOpts() {
       else row.addEventListener('click', () => toggleOpt(o));
     });
   }
-  $('#opts-cmd').textContent = commandFor(a);
+  $('#opts-cmd').textContent = commandFor(a) || '$SHELL';
 }
 
 function saveCfg(fn) {
@@ -382,10 +403,10 @@ function buildStatic() {
   $('#opts-back').addEventListener('click', backToPick);
   $('#palette').addEventListener('mousedown', (e) => { if (e.target.id === 'palette') closePalette(); });
   $('#folder-btn').addEventListener('click', async () => {
-    const p = await window.shoal.pickFolder(cwd);
-    if (p) { cwd = p; $('#folder-label').textContent = tildify(cwd); }
+    await chooseFolder();
     if (!optAgent) $('#palette-input').focus();
   });
+  $('#of-choose').addEventListener('click', chooseFolder);
   $('#new-btn').addEventListener('click', openPalette);
   $('#theme-btn').addEventListener('click', () => {
     document.documentElement.classList.add('theming');
@@ -399,6 +420,7 @@ function paletteKeys(e) {
   if (optAgent) {
     const inArgs = document.activeElement === $('#opts-args');
     const o = optAgent.opts[optSel];
+    if (e.metaKey && e.key === 'o') { e.preventDefault(); chooseFolder(); return; }
     if (e.key === 'Escape') { e.preventDefault(); inArgs ? $('#opts-args').blur() : backToPick(); }
     else if (e.key === 'Enter') { e.preventDefault(); createSession(optAgent); }
     else if (e.key === 'Tab') { e.preventDefault(); inArgs ? $('#opts-args').blur() : $('#opts-args').focus(); }

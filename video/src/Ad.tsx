@@ -411,6 +411,7 @@ const EndCard: React.FC<{ f: number }> = ({ f }) => {
   return (
     <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
       <Aurora f={f} mode="running" o={t(lf, 0, 30) * 0.9} />
+      <Img src={staticFile('mark.svg')} style={{ width: 150, height: 145, marginBottom: 36, opacity: t(lf, 0, 20), transform: `translateX(${(1 - t(lf, 0, 30)) * -60}px)` }} />
       <div style={{ fontFamily: SERIF, fontSize: 240, letterSpacing: '-0.035em', lineHeight: 1, display: 'flex' }}>
         {letters.map((l, i) => {
           const p = t(lf, 4 + i * 5, 26 + i * 5);

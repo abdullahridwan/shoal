@@ -53,13 +53,15 @@ Lines in use:
 - Know which one needs you.
 - Every coding agent, one calm window.
 
-## Logo brief
+## Logo
 
-The current bar-shaped mark is a placeholder. What a new mark should do:
+![Shoal mark](../assets/mark.svg)
 
-- **Work at 16px** (favicon, dock at small sizes) and at 1024px (app icon).
-- **One idea, not a picture.** Candidate ideas: many-as-one (several small forms reading as a single shape), a quiet nod to a terminal prompt or cursor, or a pure typographic "S" in Instrument Serif italic.
-- **Two colors at most**: Ink or Bone plus Clay. The clay should mark one small, meaningful part (the lead, the cursor, the one that needs you).
-- **App icon**: macOS squircle on Ink (`#1B1A17`) or Stone (`#F3F1EC`), optionally with a faint clay glow. No gradients on the mark itself.
-- **Avoid**: literal fish, waves, robots, sparkles, chat bubbles, anything that reads as childish or playful.
-- **Wordmark**: "Shoal" set in Instrument Serif, regular, tight tracking. The mark sits to its left at cap height.
+Three arrowheads moving together, a shoal. They also read as "run", which is what every session does.
+
+- **Colors carry meaning**: the clay arrow leads (Clay is the "needs you" color), sage follows (working), gold follows (the aurora).
+- **Files**: `assets/mark.svg` (the mark on its own), `assets/icon.svg` and `assets/icon.png` (the macOS app icon on an Ink squircle).
+- **On dark backgrounds** use the brighter variants: Clay `#D97757`, Sage `#4FAE7B` at full opacity, Gold `#DEBE82`.
+- **Lockup**: the mark sits to the left of the "Shoal" wordmark (Instrument Serif), about the wordmark's cap height, with a gap of roughly one arrow's width.
+- **Don't** recolor the arrows, rotate the mark, add outlines, shadows or gradients to it, or put it on a busy background.
+- **Minimum size**: 16px tall.
