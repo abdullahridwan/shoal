@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, nativeTheme, Menu } = require('electron');
 const path = require('path');
 const os = require('os');
 const pty = require('node-pty');
@@ -6,6 +6,8 @@ const { execFile } = require('child_process');
 
 const ptys = new Map();
 let win;
+let quitting = false;
+const send = (ch, msg) => { if (!quitting && win && !win.isDestroyed()) win.webContents.send(ch, msg); };
 
 function createWindow() {
   win = new BrowserWindow({
@@ -36,10 +38,10 @@ ipcMain.handle('pty:spawn', (_e, { id, cwd, command, cols, rows }) => {
     env: { ...process.env, TERM: 'xterm-256color', COLORTERM: 'truecolor' },
   });
   ptys.set(id, p);
-  p.onData((data) => win?.webContents.send('pty:data', { id, data }));
+  p.onData((data) => send('pty:data', { id, data }));
   p.onExit(({ exitCode }) => {
     ptys.delete(id);
-    win?.webContents.send('pty:exit', { id, exitCode });
+    send('pty:exit', { id, exitCode });
   });
   if (command) setTimeout(() => p.write(command + '\r'), 150);
   return { shell: path.basename(shell) };
@@ -77,11 +79,11 @@ function detect() {
         found = nameOf(cmds.get(pid) || '');
         stack.push(...(kids.get(pid) || []));
       }
-      win?.webContents.send('pty:agent', { id, agent: found });
+      send('pty:agent', { id, agent: found });
     }
   });
 }
-setInterval(detect, 1200);
+const detectTimer = setInterval(detect, 1200);
 
 ipcMain.on('pty:write', (_e, { id, data }) => ptys.get(id)?.write(data));
 ipcMain.on('pty:resize', (_e, { id, cols, rows }) => {
@@ -105,9 +107,27 @@ ipcMain.on('theme:dark', (_e, dark) => win?.setBackgroundColor(dark ? '#131312' 
 
 app.whenReady().then(() => {
   if (process.platform === 'darwin') app.dock.setIcon(path.join(__dirname, 'assets', 'icon.png'));
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    { label: 'Shoal', submenu: [
+      { role: 'about', label: 'About Shoal' },
+      { type: 'separator' },
+      { role: 'hide', label: 'Hide Shoal' },
+      { role: 'hideOthers' },
+      { role: 'unhide' },
+      { type: 'separator' },
+      { role: 'quit', label: 'Quit Shoal' },
+    ] },
+    { role: 'editMenu' },
+    { label: 'View', submenu: [{ role: 'reload' }, { role: 'toggleDevTools' }, { type: 'separator' }, { role: 'togglefullscreen' }] },
+    { label: 'Window', submenu: [{ role: 'minimize' }, { role: 'zoom' }, { type: 'separator' }, { role: 'front' }] },
+  ]));
   createWindow();
 });
-app.on('window-all-closed', () => {
-  for (const p of ptys.values()) p.kill();
-  app.quit();
-});
+function killAll() {
+  quitting = true;
+  clearInterval(detectTimer);
+  for (const p of ptys.values()) { try { p.kill(); } catch {} }
+  ptys.clear();
+}
+app.on('before-quit', killAll);
+app.on('window-all-closed', () => app.quit());
