@@ -7,7 +7,6 @@
     "start": "electron .",
     "postinstall": "electron-rebuild -f -w node-pty"
   },
-  "author": "Abdullah Ridwan",
   "license": "MIT",
   "devDependencies": {
     "@electron/rebuild": "^4.2.0",
@@ -23,9 +22,5 @@
     "@xterm/xterm": "^6.0.0",
     "node-pty": "^1.1.0"
   },
-  "productName": "Shoal",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/abdullahridwan/shoal.git"
-  }
+  "productName": "Shoal"
 }

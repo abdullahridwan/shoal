@@ -27,9 +27,9 @@ It is deliberately small. It is not a new terminal emulator. It is real login sh
 
 Requires Node 20+ and macOS (Linux and Windows are untested).
 
+Clone this repository, then from its folder:
+
 ```bash
-git clone https://github.com/abdullahridwan/shoal.git
-cd shoal
 npm install
 npm start
 ```
