@@ -6,6 +6,10 @@
 
 <p align="center">All your agents, in one window.</p>
 
+<p align="center">
+  <a href="assets/shoal-ad.mp4"><img src="assets/shoal-ad.gif" alt="Shoal in action" width="100%" /></a>
+</p>
+
 Shoal is a calm, native-feeling terminal for running many coding agents side by side. Claude Code, Hermes, Codex, Gemini CLI, Oh My Pi, OpenCode, Ollama or a plain shell: each gets its own session in a sidebar, with its logo and a live status, so a glance tells you which one is working and which one needs you.
 
 It is deliberately small. It is not a new terminal emulator. It is real login shells (node-pty) rendered with xterm.js, wrapped in a quiet interface.
@@ -35,6 +39,10 @@ npm start
 ## Adding an agent
 
 Agents live in the `AGENTS` array at the top of `src/renderer.js`. Each entry has a command, an icon from [Lobe Icons](https://github.com/lobehub/lobe-icons) and optional flag presets. To have Shoal detect it inside a plain shell, add its binary name to `KNOWN` in `main.js`.
+
+## The film
+
+The video above is made with [Remotion](https://remotion.dev) and lives in `video/`. Preview it with `cd video && npm install && npx remotion studio src/index.ts`.
 
 ## Credits
 
