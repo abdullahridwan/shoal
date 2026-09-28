@@ -7,8 +7,8 @@
 <p align="center">All your agents, in one window.</p>
 
 <p align="center">
-  <a href="assets/shoal-ad.mp4"><img src="assets/shoal-ad.gif" alt="Shoal in action" width="100%" /></a>
-  <br /><sub>Click for the full film with sound.</sub>
+  <img src="assets/shoal-demo.webp" alt="Shoal in action" width="100%" />
+  <br /><sub><a href="assets/shoal-ad.mp4">Watch the full film with sound</a></sub>
 </p>
 
 Shoal is a calm, native-feeling terminal for running many coding agents side by side. Claude Code, Hermes, Codex, Gemini CLI, Oh My Pi, OpenCode, Ollama or a plain shell: each gets its own session in a sidebar, with its logo and a live status, so a glance tells you which one is working and which one needs you.

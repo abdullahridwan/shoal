@@ -52,7 +52,7 @@
         "dmg",
         "zip"
       ],
-      "identity": null
+      "identity": "-"
     },
     "dmg": {
       "title": "Shoal ${version}"
