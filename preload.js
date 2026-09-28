@@ -10,5 +10,10 @@ contextBridge.exposeInMainWorld('shoal', {
   home: () => ipcRenderer.invoke('env:home'),
   onData: (cb) => ipcRenderer.on('pty:data', (_e, m) => cb(m)),
   onAgent: (cb) => ipcRenderer.on('pty:agent', (_e, m) => cb(m)),
+  browserLoad: (id, url) => ipcRenderer.send('browser:load', { id, url }),
+  browserNav: (id, action) => ipcRenderer.send('browser:nav', { id, action }),
+  browserLayout: (id, bounds) => ipcRenderer.send('browser:layout', { id, bounds }),
+  onBrowserState: (cb) => ipcRenderer.on('browser:state', (_e, m) => cb(m)),
+  onBrowserOpened: (cb) => ipcRenderer.on('browser:opened', (_e, m) => cb(m)),
   onExit: (cb) => ipcRenderer.on('pty:exit', (_e, m) => cb(m)),
 });

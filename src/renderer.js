@@ -134,14 +134,15 @@ async function createSession(agent) {
   });
   const fit = new FitAddon.FitAddon();
   term.loadAddon(fit);
-  term.loadAddon(new WebLinksAddon.WebLinksAddon());
+  term.loadAddon(new WebLinksAddon.WebLinksAddon((_e, uri) => { const x = sessions.find((y) => y.id === id); if (x) openBrowser(x, uri); }));
   term.open(el);
-  term.attachCustomKeyEventHandler((e) => !(e.metaKey && /^[tbw1-9\[\]]$/.test(e.key)));
+  term.attachCustomKeyEventHandler((e) => !(e.metaKey && /^[tbwl1-9\[\]]$/.test(e.key)));
 
   const s = {
     id, agent, shown: agent, term, fit, el, cwd, command,
     name: autoName(agent), renamed: false,
     created: Date.now(), lastData: 0, lastInput: 0, unread: false, exited: false, swapped: false,
+    browser: { open: false, url: '', title: '', loading: false, canBack: false, canForward: false },
   };
   sessions.push(s);
 
@@ -246,7 +247,100 @@ function render() {
     $('#header-status').innerHTML = `<span class="dot ${st}"></span>${STATUS_LABEL[st]}`;
   }
   sessions.forEach((s) => { s.swapped = false; });
+  syncBrowser();
 }
+
+/* browser pane */
+let lastLayout = '';
+function syncBrowser() {
+  const a = sessions.find((x) => x.id === activeId);
+  const open = !!(a && a.browser.open);
+  $('#browser-pane').classList.toggle('hidden', !open);
+  $('#divider').classList.toggle('hidden', !open);
+  $('#browser-btn').classList.toggle('on', open);
+  let key = 'none';
+  let bounds = null;
+  if (open) {
+    const b = a.browser;
+    if (document.activeElement !== $('#b-input')) $('#b-input').value = b.url;
+    $('.b-empty').classList.toggle('hidden', !!b.url);
+    $('.b-url').classList.toggle('loading', b.loading);
+    $('[data-nav="back"]').disabled = !b.canBack;
+    $('[data-nav="forward"]').disabled = !b.canForward;
+    if (b.url && !paletteOpen()) {
+      const r = $('#browser-slot').getBoundingClientRect();
+      bounds = { x: r.left, y: r.top, width: r.width, height: r.height };
+      key = `${a.id}|${Math.round(r.left)}|${Math.round(r.top)}|${Math.round(r.width)}|${Math.round(r.height)}`;
+    }
+  }
+  if (key !== lastLayout) {
+    lastLayout = key;
+    window.shoal.browserLayout(bounds ? a.id : null, bounds);
+  }
+}
+function refit() {
+  const a = sessions.find((x) => x.id === activeId);
+  requestAnimationFrame(() => { a?.fit.fit(); syncBrowser(); });
+}
+function openBrowser(s, url) {
+  if (!s) return;
+  s.browser.open = true;
+  if (url) { s.browser.url = url; window.shoal.browserLoad(s.id, url); }
+  if (s.id !== activeId) { s.unread = true; render(); return; }
+  syncBrowser();
+  refit();
+}
+function closeBrowser(s) {
+  if (!s) return;
+  s.browser.open = false;
+  syncBrowser();
+  refit();
+  s.term.focus();
+}
+function browserStatic() {
+  const active = () => sessions.find((x) => x.id === activeId);
+  $('#browser-btn').addEventListener('click', () => { const a = active(); if (!a) return; a.browser.open ? closeBrowser(a) : openBrowser(a); if (a.browser.open && !a.browser.url) $('#b-input').focus(); });
+  $('#b-close').addEventListener('click', () => closeBrowser(active()));
+  $('#b-form').addEventListener('submit', (e) => { e.preventDefault(); const a = active(); const v = $('#b-input').value.trim(); if (a && v) { openBrowser(a, v); $('#b-input').blur(); } });
+  $('#b-input').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); $('#b-input').blur(); active()?.term.focus(); } });
+  document.querySelectorAll('.b-btn[data-nav]').forEach((b) => b.addEventListener('click', () => { const a = active(); if (a) window.shoal.browserNav(a.id, b.dataset.nav); }));
+  document.querySelectorAll('.b-chip').forEach((c) => c.addEventListener('click', () => openBrowser(active(), c.dataset.url)));
+
+  const w = store.get('browserWidth', 0);
+  if (w) $('#browser-pane').style.setProperty('--bw', `${w}px`);
+  $('#divider').addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    document.body.classList.add('dragging');
+    const ws = $('#workspace').getBoundingClientRect();
+    const move = (ev) => {
+      const width = Math.max(320, Math.min(ws.right - ev.clientX, ws.width * 0.75));
+      $('#browser-pane').style.setProperty('--bw', `${width}px`);
+      syncBrowser();
+    };
+    const up = () => {
+      document.body.classList.remove('dragging');
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+      store.set('browserWidth', $('#browser-pane').getBoundingClientRect().width);
+      refit();
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  });
+  new ResizeObserver(() => syncBrowser()).observe($('#browser-slot'));
+  window.addEventListener('resize', () => syncBrowser());
+}
+
+window.shoal.onBrowserState(({ id, url, title, loading, canBack, canForward }) => {
+  const s = sessions.find((x) => x.id === id);
+  if (!s) return;
+  Object.assign(s.browser, { url, title, loading, canBack, canForward });
+  if (id === activeId) syncBrowser();
+});
+window.shoal.onBrowserOpened(({ id, url }) => {
+  const s = sessions.find((x) => x.id === id);
+  if (s) { s.browser.url = url; openBrowser(s); }
+});
 
 function rename(s, li) {
   const name = li.querySelector('.name');
@@ -381,6 +475,7 @@ function openPalette() {
   renderPalette();
   $('#palette').classList.remove('hidden');
   $('#palette-input').focus();
+  syncBrowser();
 }
 function backToPick() {
   optAgent = null;
@@ -392,6 +487,7 @@ function backToPick() {
 function closePalette() {
   optAgent = null;
   $('#palette').classList.add('hidden');
+  syncBrowser();
   sessions.find((s) => s.id === activeId)?.term.focus();
 }
 const paletteOpen = () => !$('#palette').classList.contains('hidden');
@@ -400,10 +496,13 @@ function toggleSidebar(force) {
   const collapsed = force ?? !document.body.classList.contains('collapsed');
   document.body.classList.toggle('collapsed', collapsed);
   store.set('sidebarCollapsed', collapsed);
-  setTimeout(() => sessions.find((s) => s.id === activeId)?.fit.fit(), 400);
+  const until = performance.now() + 450;
+  const step = () => { syncBrowser(); if (performance.now() < until) requestAnimationFrame(step); else refit(); };
+  requestAnimationFrame(step);
 }
 
 function buildStatic() {
+  browserStatic();
   $('#side-toggle').addEventListener('click', () => toggleSidebar());
   if (store.get('sidebarCollapsed', false)) toggleSidebar(true);
   $('#quick').innerHTML = AGENTS.slice(0, 4).map((a, i) =>
@@ -464,6 +563,7 @@ window.addEventListener('keydown', (e) => {
   const i = sessions.findIndex((s) => s.id === activeId);
   if (e.key === 't') { e.preventDefault(); openPalette(); }
   else if (e.key === 'b') { e.preventDefault(); toggleSidebar(); }
+  else if (e.key === 'l' && activeId) { e.preventDefault(); const a = sessions.find((x) => x.id === activeId); openBrowser(a); $('#b-input').focus(); $('#b-input').select(); }
   else if (e.key === 'w' && activeId) { e.preventDefault(); closeSession(activeId); }
   else if (/^[1-9]$/.test(e.key)) { const s = sessions[+e.key - 1]; if (s) { e.preventDefault(); activate(s.id); } }
   else if (e.key === ']' && sessions.length) { e.preventDefault(); activate(sessions[(i + 1) % sessions.length].id); }
