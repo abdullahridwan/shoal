@@ -279,8 +279,13 @@ body.collapsed .side-foot { justify-content: center; padding: 12px 0 0; }
 body.collapsed .drag { height: 84px; }
 body.collapsed .side-toggle { right: auto; left: 18px; top: 44px; }
 
-.start-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: calc(100% - 40px); height: 46px; margin: 0 20px 20px; border-radius: 12px; background: var(--ink); color: var(--paper); font-weight: 500; font-size: 14px; transition: transform 160ms var(--ease), opacity 160ms; }
-.start-btn:hover { opacity: 0.92; }
+.start-btn { position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center; justify-content: center; gap: 10px; width: calc(100% - 40px); height: 48px; margin: 0 20px 20px; border-radius: 12px; color: #1b1a17; font-weight: 500; font-size: 14px; letter-spacing: -0.005em;
+  background: linear-gradient(90deg, #dc9a7d, #e8cd94, #9ccaa9, #dc9a7d, #e8cd94, #9ccaa9, #dc9a7d);
+  background-size: 300% 100%; animation: flow 6s linear infinite;
+  box-shadow: inset 0 0 0 1px rgba(27,26,23,0.08), 0 6px 20px -8px rgba(201,100,66,0.45);
+  transition: transform 200ms var(--ease), box-shadow 300ms var(--ease); }
+.start-btn::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%); background-size: 250% 100%; animation: sheen 3.2s var(--ease) infinite; }
+.start-btn:hover { animation-duration: 2.4s; box-shadow: inset 0 0 0 1px rgba(27,26,23,0.1), 0 10px 28px -8px rgba(201,100,66,0.55); }
 .start-btn:active { transform: scale(0.99); }
-.start-btn .hint { background: rgba(255,255,255,0.14); color: inherit; opacity: 0.75; }
-:root[data-theme="dark"] .start-btn .hint { background: rgba(0,0,0,0.12); }
+.start-btn .hint { background: rgba(27,26,23,0.1); color: #1b1a17; opacity: 0.7; }
+@keyframes flow { from { background-position: 75% 0; } to { background-position: 0% 0; } }
