@@ -279,15 +279,21 @@ body.collapsed .side-foot { justify-content: center; padding: 12px 0 0; }
 body.collapsed .drag { height: 84px; }
 body.collapsed .side-toggle { right: auto; left: 18px; top: 44px; }
 
-.start-btn { --c: #1b1a17; --fg: #fbfaf7; --hi: color-mix(in srgb, var(--c) 80%, #ffffff);
+.start-btn { --c: #1b1a17; --fg: #fbfaf7;
+  --deep: color-mix(in srgb, var(--c) 72%, #0b0a09);
+  --hi: color-mix(in srgb, var(--c) 74%, #ffffff);
   position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center; justify-content: center; gap: 10px; width: calc(100% - 40px); height: 48px; margin: 0 20px 20px; border-radius: 12px; color: var(--fg); font-weight: 500; font-size: 14px;
-  background: linear-gradient(90deg, var(--c) 0%, var(--hi) 25%, var(--c) 50%, var(--hi) 75%, var(--c) 100%);
-  background-size: 200% 100%; animation: flow 5s linear infinite;
+  background: linear-gradient(100deg, var(--deep) 0%, var(--c) 22%, var(--hi) 42%, var(--c) 62%, var(--deep) 82%, var(--c) 100%);
+  background-size: 260% 100%; animation: drift 11s ease-in-out infinite alternate;
   box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--c) 70%, transparent);
-  transition: transform 200ms var(--ease), box-shadow 300ms var(--ease), color 300ms; }
-.start-btn::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(100deg, transparent 35%, rgba(255,255,255,0.16) 50%, transparent 65%); background-size: 250% 100%; animation: sheen 3.4s var(--ease) infinite; }
+  transition: transform 200ms var(--ease), box-shadow 400ms var(--ease); }
+.start-btn::before { content: ""; position: absolute; z-index: -1; left: 50%; top: 50%; width: 70%; height: 260%; border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--hi) 85%, #ffffff), transparent);
+  filter: blur(14px); animation: breathe-glow 5.2s ease-in-out infinite; }
 .start-btn:hover { box-shadow: 0 12px 30px -10px color-mix(in srgb, var(--c) 85%, transparent); }
+.start-btn:hover::before { animation-duration: 2.6s; }
 .start-btn:active { transform: scale(0.99); }
 .start-btn .hint { background: color-mix(in srgb, var(--fg) 16%, transparent); color: var(--fg); opacity: 0.8; }
-:root[data-theme="dark"] .start-btn.ink { --c: #efece4; --fg: #1b1a17; --hi: #ffffff; }
-@keyframes flow { from { background-position: 100% 0; } to { background-position: 0% 0; } }
+:root[data-theme="dark"] .start-btn.ink { --c: #e4e0d6; --fg: #1b1a17; --deep: #cfcabd; --hi: #ffffff; }
+@keyframes drift { from { background-position: 0% 0; } to { background-position: 100% 0; } }
+@keyframes breathe-glow { 0%, 100% { opacity: 0.18; transform: translate(-50%, -50%) scale(0.85); } 50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); } }
