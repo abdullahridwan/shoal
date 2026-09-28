@@ -1,6 +1,6 @@
 const AGENTS = [
   {
-    id: 'claude', label: 'Claude Code', cmd: 'claude', icon: 'claudecode-color', color: true,
+    id: 'claude', label: 'Claude Code', cmd: 'claude', icon: 'claudecode-color', color: true, tint: '#c4613d',
     opts: [
       { key: 'skip', flag: '--dangerously-skip-permissions', t: 'Skip permissions', d: 'Run tools without asking first', danger: true },
       { key: 'cont', flag: '--continue', t: 'Continue', d: 'Pick up the most recent conversation' },
@@ -10,7 +10,7 @@ const AGENTS = [
   },
   { id: 'hermes', label: 'Hermes', cmd: 'hermes', icon: 'hermesagent', opts: [] },
   {
-    id: 'codex', label: 'Codex', cmd: 'codex', icon: 'codex-color', color: true,
+    id: 'codex', label: 'Codex', cmd: 'codex', icon: 'codex-color', color: true, tint: '#3a3fe6',
     opts: [
       { key: 'bypass', flag: '--dangerously-bypass-approvals-and-sandbox', t: 'Bypass approvals', d: 'No sandbox, no confirmations', danger: true },
       { key: 'auto', flag: '--full-auto', t: 'Full auto', d: 'Sandboxed, runs without asking' },
@@ -18,7 +18,7 @@ const AGENTS = [
     ],
   },
   {
-    id: 'gemini', label: 'Gemini CLI', cmd: 'gemini', icon: 'geminicli-color', color: true,
+    id: 'gemini', label: 'Gemini CLI', cmd: 'gemini', icon: 'geminicli-color', color: true, tint: '#1f6fe5',
     opts: [{ key: 'yolo', flag: '--yolo', t: 'YOLO mode', d: 'Approve every action automatically', danger: true }],
   },
   {
@@ -321,6 +321,10 @@ function showOpts(a) {
   $('#opts-args').value = cfgOf(a).extra || '';
   renderFolder();
   renderOpts();
+  const btn = $('#start-btn');
+  btn.classList.toggle('ink', !a.tint);
+  if (a.tint) btn.style.setProperty('--c', a.tint); else btn.style.removeProperty('--c');
+
   $('#opts-args').blur();
   $('#keys').innerHTML = '<span class="hint">⌘O</span> folder <span class="hint">space</span> toggle <span class="hint">↵</span> launch';
 }
