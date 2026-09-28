@@ -257,10 +257,22 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 .side-toggle { position: fixed; top: 13px; left: 88px; z-index: 30; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--ink-3); -webkit-app-region: no-drag; transition: background 160ms, color 160ms; }
 .side-toggle:hover { background: var(--hover); color: var(--ink); }
 .side-toggle svg { width: 17px; height: 17px; }
-#sidebar { transition: width 380ms var(--ease), padding 380ms var(--ease), opacity 260ms var(--ease); overflow: hidden; }
-#sidebar > * { min-width: 236px; }
-body.collapsed #sidebar { width: 0; padding-left: 0; padding-right: 0; opacity: 0; pointer-events: none; }
+#sidebar { transition: width 380ms var(--ease), padding 380ms var(--ease); overflow: hidden; }
 #main { transition: margin 380ms var(--ease); }
-body.collapsed #main { margin-left: 8px; }
 #header { transition: padding 380ms var(--ease); }
-body.collapsed #header { padding-left: 132px; }
+
+body.collapsed #sidebar { width: 76px; padding: 0 12px 16px; }
+body.collapsed .wordmark { padding: 6px 0 22px; justify-content: center; }
+body.collapsed .wordmark span, body.collapsed .new-btn span, body.collapsed .section-label,
+body.collapsed .session .meta, body.collapsed .session .close, body.collapsed .summary { display: none !important; }
+body.collapsed .new-btn { width: 52px; height: 44px; padding: 0; justify-content: center; }
+body.collapsed .new-btn svg { width: 18px; height: 18px; }
+body.collapsed #sessions { margin: 14px 0 0; padding: 2px; gap: 6px; align-items: center; }
+body.collapsed .session { width: 48px; height: 48px; padding: 0; justify-content: center; flex-shrink: 0; }
+body.collapsed .session .logo { width: 32px; height: 32px; border-radius: 9px; }
+body.collapsed .session .logo .ico, body.collapsed .session .logo .ico-shell, body.collapsed .session .logo .ico-shell svg { width: 17px; height: 17px; }
+body.collapsed .session .dot, body.collapsed .session:hover .dot { display: block; position: absolute; top: 6px; right: 6px; box-shadow: 0 0 0 2px var(--stone); }
+body.collapsed .session.active .dot { box-shadow: 0 0 0 2px var(--card); }
+body.collapsed .session .dot.attention { box-shadow: 0 0 0 2px var(--stone), 0 0 0 4px rgba(201,100,66,0.25); }
+body.collapsed .side-foot { justify-content: center; padding: 12px 0 0; }
+body.collapsed #header { padding-left: 64px; }

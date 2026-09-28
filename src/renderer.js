@@ -221,6 +221,7 @@ function render() {
     if (s.swapped) li.querySelector('.logo-slot').innerHTML = logoHTML(s.shown, 'swap');
     const name = li.querySelector('.name');
     if (name && name.textContent !== s.name) name.textContent = s.name;
+    li.title = `${s.name}  ·  ${basename(s.cwd)}`;
     li.querySelector('.sub').textContent = basename(s.cwd);
     li.querySelector('.dot').className = `dot ${st}`;
   });
