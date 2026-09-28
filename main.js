@@ -29,6 +29,7 @@ function createWindow() {
     },
   });
   win.loadFile(path.join(__dirname, 'src', 'index.html'));
+  if (process.platform === 'darwin') win.setWindowButtonVisibility(false);
 }
 
 ipcMain.handle('pty:spawn', (_e, { id, cwd, command, cols, rows }) => {
@@ -199,6 +200,7 @@ esac
   server.listen(0, '127.0.0.1', () => { opener.port = server.address().port; });
 }
 ipcMain.on('theme:dark', (_e, dark) => win?.setBackgroundColor(dark ? '#131312' : '#f3f1ec'));
+ipcMain.on('chrome:hover', (_e, hovering) => { if (process.platform === 'darwin' && win && !win.isDestroyed()) win.setWindowButtonVisibility(hovering); });
 
 app.whenReady().then(() => {
   if (process.platform === 'darwin') app.dock.setIcon(path.join(__dirname, 'assets', 'icon.png'));

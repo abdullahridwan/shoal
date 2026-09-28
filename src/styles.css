@@ -76,6 +76,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 /* sidebar */
 #sidebar { width: 264px; flex-shrink: 0; display: flex; flex-direction: column; padding: 0 14px 16px; }
 .drag, .drag-top { height: 52px; -webkit-app-region: drag; flex-shrink: 0; }
+#chrome-zone { position: fixed; top: 0; left: 0; width: 84px; height: 34px; z-index: 100; -webkit-app-region: no-drag; }
 .drag-top { position: absolute; top: 0; left: 0; right: 0; }
 .wordmark { font-family: var(--serif); font-size: 26px; line-height: 1; letter-spacing: -0.015em; padding: 6px 10px 26px; }
 
@@ -143,6 +144,30 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 #header-status { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 500; color: var(--ink-2); flex-shrink: 0; padding: 5px 10px; border-radius: 999px; background: var(--glass); box-shadow: 0 0 0 1px var(--line); backdrop-filter: blur(8px); transition: color 400ms; }
 #main[data-state="attention"] #header-status { color: var(--clay); }
 #terminals { position: relative; flex: 1; min-height: 0; }
+#terminals.paned > .term:not(.paned) { display: none; }
+#terminals.drop-target::before { content: ""; position: absolute; inset: 8px; border: 2px dashed var(--clay); border-radius: 12px; pointer-events: none; z-index: 6; opacity: 0.55; }
+
+#pane-row { position: absolute; inset: 0; display: none; }
+#pane-row.on { display: flex; }
+.pane { position: relative; display: flex; flex-direction: column; min-width: 160px; }
+.pane-head { height: 34px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--line); }
+.pane-head .name { flex: 1; font-size: 12px; font-weight: 500; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pane.focused .pane-head { background: var(--hover); }
+.pane.focused .pane-head .name { color: var(--ink); }
+.pane-head .logo { width: 18px; height: 18px; border-radius: 5px; }
+.pane-head .logo .ico, .pane-head .logo .ico-shell, .pane-head .logo .ico-shell svg { width: 11px; height: 11px; }
+.pane-head .close { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; color: var(--ink-3); flex-shrink: 0; }
+.pane-head .close svg { width: 11px; height: 11px; }
+.pane-head .close:hover { background: var(--hover); color: var(--ink); }
+.pane .term.paned { position: relative; inset: auto; opacity: 1; pointer-events: auto; filter: none; transform: none; flex: 1; min-height: 0; padding: 10px 6px 6px 12px; }
+.pane-divider { width: 9px; margin: 0 -4px; cursor: col-resize; position: relative; z-index: 3; flex-shrink: 0; }
+.pane-divider::after { content: ""; position: absolute; left: 4px; top: 0; bottom: 0; width: 1px; background: var(--line); transition: background 160ms; }
+.pane-divider:hover::after, body.dragging-pane .pane-divider::after { background: var(--clay); }
+body.dragging-pane { cursor: col-resize; }
+body.dragging-pane * { user-select: none; }
+.drop-indicator { position: absolute; top: 6px; bottom: 6px; width: 3px; background: var(--clay); z-index: 5; border-radius: 2px; pointer-events: none; }
+.session[draggable="true"] { cursor: grab; }
+.session.dragging { opacity: 0.4; }
 .term { position: absolute; inset: 0; padding: 12px 6px 6px 14px; opacity: 0; pointer-events: none; filter: blur(6px); transform: scale(0.996); transition: opacity 360ms var(--ease), filter 420ms var(--ease), transform 420ms var(--ease); }
 .term.active { opacity: 1; pointer-events: auto; filter: none; transform: none; }
 .xterm .xterm-viewport { background: transparent !important; }
@@ -266,7 +291,7 @@ body.collapsed #sidebar { width: 92px; padding: 0 14px 16px; }
 body.collapsed .wordmark { padding: 6px 0 22px; justify-content: center; }
 body.collapsed .wordmark span, body.collapsed .new-btn span, body.collapsed .section-label,
 body.collapsed .session .meta, body.collapsed .session .close, body.collapsed .summary { display: none !important; }
-body.collapsed .new-btn { width: 56px; margin: 0 auto; height: 44px; padding: 0; justify-content: center; }
+body.collapsed .new-btn { width: 48px; height: 48px; margin: 0 auto; padding: 0; justify-content: center; }
 body.collapsed .new-btn svg { width: 18px; height: 18px; }
 body.collapsed #sessions { margin: 14px 0 0; padding: 2px; gap: 6px; align-items: center; }
 body.collapsed .session { width: 48px; height: 48px; padding: 0; justify-content: center; flex-shrink: 0; }

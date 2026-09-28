@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('shoal', {
   kill: (id) => ipcRenderer.send('pty:kill', { id }),
   pickFolder: (p) => ipcRenderer.invoke('dialog:folder', p),
   setDark: (d) => ipcRenderer.send('theme:dark', d),
+  chromeHover: (h) => ipcRenderer.send('chrome:hover', h),
   home: () => ipcRenderer.invoke('env:home'),
   onData: (cb) => ipcRenderer.on('pty:data', (_e, m) => cb(m)),
   onAgent: (cb) => ipcRenderer.on('pty:agent', (_e, m) => cb(m)),

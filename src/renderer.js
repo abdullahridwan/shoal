@@ -66,6 +66,10 @@ darkQuery.addEventListener('change', applyTheme);
 const $ = (s) => document.querySelector(s);
 const sessions = [];
 let activeId = null;
+let paneIds = [];
+let paneSizes = {};
+let dragSessionId = null;
+let dropHint = null;
 let home = '';
 let cwd = '';
 let seq = 0;
@@ -157,6 +161,17 @@ async function createSession(agent) {
 }
 
 function activate(id) {
+  if (paneIds.length) {
+    if (paneIds.includes(id)) {
+      activeId = id;
+      const s = sessions.find((x) => x.id === id);
+      if (s) { s.unread = false; requestAnimationFrame(() => s.term.focus()); }
+      render();
+      return;
+    }
+    paneIds = [];
+    paneSizes = {};
+  }
   activeId = id;
   const s = sessions.find((x) => x.id === id);
   sessions.forEach((x) => x.el.classList.toggle('active', x.id === id));
@@ -170,6 +185,7 @@ function activate(id) {
 function closeSession(id) {
   const i = sessions.findIndex((x) => x.id === id);
   if (i < 0) return;
+  if (paneIds.includes(id)) removeFromPanes(id);
   const [s] = sessions.splice(i, 1);
   window.shoal.kill(id);
   s.term.dispose();
@@ -179,6 +195,97 @@ function closeSession(id) {
     next ? activate(next.id) : (activeId = null);
   }
   render();
+}
+
+/* panes: drag a session onto the terminal area to split, like Arc */
+function ensurePaneSize(id) { if (!(id in paneSizes)) paneSizes[id] = 1; }
+
+function startPanes(firstId, secondId) {
+  paneIds = [firstId, secondId].filter((v, i, a) => v && a.indexOf(v) === i);
+  paneIds.forEach(ensurePaneSize);
+  activeId = paneIds[paneIds.length - 1];
+  render();
+}
+
+function insertPane(id, beforeId) {
+  paneIds = paneIds.filter((x) => x !== id);
+  const idx = beforeId ? paneIds.indexOf(beforeId) : -1;
+  paneIds.splice(idx < 0 ? paneIds.length : idx, 0, id);
+  ensurePaneSize(id);
+  activeId = id;
+  render();
+}
+
+function removeFromPanes(id) {
+  if (!paneIds.includes(id)) return;
+  paneIds = paneIds.filter((x) => x !== id);
+  delete paneSizes[id];
+  if (paneIds.length <= 1) {
+    const last = paneIds[0];
+    paneIds = [];
+    if (last) activate(last);
+  }
+}
+
+function syncPanes() {
+  const row = $('#pane-row');
+  const on = paneIds.length >= 2;
+  $('#terminals').classList.toggle('paned', on);
+  row.classList.toggle('on', on);
+  if (!on) {
+    if (row.dataset.key) {
+      sessions.forEach((s) => {
+        if (s.el.classList.contains('paned')) { s.el.classList.remove('paned'); $('#terminals').appendChild(s.el); }
+      });
+      row.innerHTML = '';
+      row.dataset.key = '';
+    }
+    return;
+  }
+  const key = paneIds.join(',');
+  if (row.dataset.key === key) {
+    paneIds.forEach((id) => {
+      const s = sessions.find((x) => x.id === id);
+      const p = row.querySelector(`.pane[data-id="${id}"]`);
+      if (!s || !p) return;
+      const st = statusOf(s);
+      p.querySelector('.pane-dot').className = `dot ${st}`;
+      const nm = p.querySelector('.name');
+      if (nm.textContent !== s.name) nm.textContent = s.name;
+      p.classList.toggle('focused', id === activeId);
+    });
+    return;
+  }
+  row.dataset.key = key;
+  row.innerHTML = '';
+  paneIds.forEach((id, i) => {
+    const s = sessions.find((x) => x.id === id);
+    if (!s) return;
+    if (i > 0) {
+      const div = document.createElement('div');
+      div.className = 'pane-divider';
+      div.dataset.left = paneIds[i - 1];
+      div.dataset.right = id;
+      row.appendChild(div);
+    }
+    ensurePaneSize(id);
+    const pane = document.createElement('div');
+    pane.className = 'pane';
+    pane.dataset.id = id;
+    pane.style.flexGrow = paneSizes[id];
+    pane.style.flexBasis = '0px';
+    const head = document.createElement('div');
+    head.className = 'pane-head';
+    head.innerHTML = `${logoHTML(s.shown)}<span class="name"></span><span class="dot pane-dot"></span><button class="close" title="Close pane">${CLOSE_SVG}</button>`;
+    head.querySelector('.name').textContent = s.name;
+    head.addEventListener('mousedown', (e) => { if (!e.target.closest('.close')) { activeId = id; s.term.focus(); render(); } });
+    head.querySelector('.close').addEventListener('click', () => removeFromPanes(id));
+    pane.appendChild(head);
+    s.el.classList.add('paned');
+    pane.appendChild(s.el);
+    row.appendChild(pane);
+  });
+  requestAnimationFrame(() => paneIds.forEach((id) => sessions.find((x) => x.id === id)?.fit.fit()));
 }
 
 function statusOf(s) {
@@ -193,6 +300,7 @@ function sessionRow(s) {
   const li = document.createElement('li');
   li.className = 'session';
   li.dataset.id = s.id;
+  li.draggable = true;
   li.innerHTML = `<span class="logo-slot">${logoHTML(s.shown)}</span>
     <div class="meta"><div class="name"></div><div class="sub"></div></div>
     <span class="dot"></span>
@@ -200,6 +308,13 @@ function sessionRow(s) {
   li.addEventListener('mousedown', (e) => { if (!e.target.closest('.close, input')) activate(s.id); });
   li.querySelector('.close').addEventListener('click', () => closeSession(s.id));
   li.querySelector('.name').addEventListener('dblclick', () => rename(s, li));
+  li.addEventListener('dragstart', (e) => {
+    dragSessionId = s.id;
+    li.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', s.id);
+  });
+  li.addEventListener('dragend', () => { li.classList.remove('dragging'); dragSessionId = null; clearDropHint(); });
   return li;
 }
 
@@ -247,6 +362,7 @@ function render() {
     $('#header-status').innerHTML = `<span class="dot ${st}"></span>${STATUS_LABEL[st]}`;
   }
   sessions.forEach((s) => { s.swapped = false; });
+  syncPanes();
   syncBrowser();
 }
 
@@ -501,8 +617,88 @@ function toggleSidebar(force) {
   requestAnimationFrame(step);
 }
 
+function clearDropHint() {
+  $('#terminals').classList.remove('drop-target');
+  document.querySelectorAll('.drop-indicator').forEach((n) => n.remove());
+  dropHint = null;
+}
+
+function panesStatic() {
+  const termEl = $('#terminals');
+  termEl.addEventListener('dragover', (e) => {
+    if (!dragSessionId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const pane = e.target.closest('.pane');
+    document.querySelectorAll('.drop-indicator').forEach((n) => n.remove());
+    if (pane) {
+      termEl.classList.remove('drop-target');
+      const r = pane.getBoundingClientRect();
+      const before = e.clientX - r.left < r.width / 2;
+      const ind = document.createElement('div');
+      ind.className = 'drop-indicator';
+      ind.style.left = before ? '0px' : `${Math.round(r.width) - 2}px`;
+      pane.appendChild(ind);
+      const idx = paneIds.indexOf(pane.dataset.id);
+      dropHint = { beforeId: before ? pane.dataset.id : paneIds[idx + 1] || null };
+    } else {
+      termEl.classList.add('drop-target');
+      dropHint = paneIds.length >= 2 ? { beforeId: null } : { start: true };
+    }
+  });
+  termEl.addEventListener('dragleave', (e) => { if (e.target === termEl) termEl.classList.remove('drop-target'); });
+  termEl.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const id = dragSessionId;
+    const hint = dropHint;
+    clearDropHint();
+    if (!id || !sessions.some((s) => s.id === id)) return;
+    if (hint && hint.start) {
+      const other = (activeId && activeId !== id) ? activeId : sessions.find((s) => s.id !== id)?.id;
+      if (other) startPanes(other, id);
+    } else if (hint) {
+      insertPane(id, hint.beforeId);
+    }
+  });
+
+  $('#pane-row').addEventListener('mousedown', (e) => {
+    const div = e.target.closest('.pane-divider');
+    if (!div) return;
+    e.preventDefault();
+    document.body.classList.add('dragging-pane');
+    const leftId = div.dataset.left, rightId = div.dataset.right;
+    const leftPane = $(`.pane[data-id="${leftId}"]`);
+    const rightPane = $(`.pane[data-id="${rightId}"]`);
+    if (!leftPane || !rightPane) return;
+    const startLeftW = leftPane.getBoundingClientRect().width;
+    const startRightW = rightPane.getBoundingClientRect().width;
+    const startX = e.clientX;
+    const totalGrow = (paneSizes[leftId] || 1) + (paneSizes[rightId] || 1);
+    const move = (ev) => {
+      const dx = ev.clientX - startX;
+      const newLeftW = Math.max(120, startLeftW + dx);
+      const newRightW = Math.max(120, startRightW - dx);
+      const ratio = newLeftW / (newLeftW + newRightW);
+      paneSizes[leftId] = totalGrow * ratio;
+      paneSizes[rightId] = totalGrow * (1 - ratio);
+      leftPane.style.flexGrow = paneSizes[leftId];
+      rightPane.style.flexGrow = paneSizes[rightId];
+    };
+    const up = () => {
+      document.body.classList.remove('dragging-pane');
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+      sessions.find((s) => s.id === leftId)?.fit.fit();
+      sessions.find((s) => s.id === rightId)?.fit.fit();
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  });
+}
+
 function buildStatic() {
   browserStatic();
+  panesStatic();
   $('#side-toggle').addEventListener('click', () => toggleSidebar());
   if (store.get('sidebarCollapsed', false)) toggleSidebar(true);
   $('#quick').innerHTML = AGENTS.slice(0, 4).map((a, i) =>
@@ -600,8 +796,14 @@ window.shoal.onExit(({ id }) => {
   render();
 });
 
-new ResizeObserver(() => sessions.find((s) => s.id === activeId)?.fit.fit()).observe($('#terminals'));
+new ResizeObserver(() => {
+  if (paneIds.length) paneIds.forEach((id) => sessions.find((s) => s.id === id)?.fit.fit());
+  else sessions.find((s) => s.id === activeId)?.fit.fit();
+}).observe($('#terminals'));
 setInterval(render, 400);
+
+$('#chrome-zone').addEventListener('mouseenter', () => window.shoal.chromeHover(true));
+$('#chrome-zone').addEventListener('mouseleave', () => window.shoal.chromeHover(false));
 
 (async () => {
   applyTheme();
