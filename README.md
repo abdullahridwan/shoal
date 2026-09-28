@@ -22,20 +22,28 @@ It is deliberately small. It is not a new terminal emulator. It is real login sh
 - **Launch flags**: per-agent presets like `--dangerously-skip-permissions`, `--continue` or model choice, remembered between launches, with a live command preview
 - **Ambient status**: soft gradients drift across the panel while an agent works, and glow when it needs input
 - **Light and dark mode**, following the system by default
-- **Keyboard first**: `⌘T` new session, `⌘1` to `⌘9` jump, `⌘[` / `⌘]` cycle, `⌘W` close, double-click to rename
+- **Keyboard first**: `⌘T` new session, `⌘B` hide the sidebar, `⌘1` to `⌘9` jump, `⌘[` / `⌘]` cycle, `⌘W` close, double-click to rename
 
-## Run it
+## Install
 
-Requires Node 20+ and macOS (Linux and Windows are untested).
+Download the latest `.dmg` from [Releases](../../releases/latest): `Shoal-x.y.z-arm64.dmg` for Apple Silicon, `Shoal-x.y.z.dmg` for Intel. Open it and drag Shoal into Applications.
 
-Clone this repository, then from its folder:
+Shoal is not notarized yet, so macOS will say it cannot verify the developer the first time. Right-click Shoal in Applications and choose **Open**, or run:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Shoal.app
+```
+
+## Run from source
+
+Requires Node 20+ and macOS (Linux and Windows are untested). Clone this repository, then from its folder:
 
 ```bash
 npm install
 npm start
 ```
 
-`npm install` rebuilds `node-pty` against Electron automatically.
+`npm install` rebuilds `node-pty` against Electron automatically. `npm run dist` builds the `.dmg` files into `dist/`.
 
 ## Adding an agent
 

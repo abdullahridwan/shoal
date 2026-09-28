@@ -1,16 +1,18 @@
 {
   "name": "shoal",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A calm home for your terminal agents",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "postinstall": "electron-rebuild -f -w node-pty"
+    "postinstall": "electron-rebuild -f -w node-pty",
+    "dist": "electron-builder --mac --arm64 --x64"
   },
   "license": "MIT",
   "devDependencies": {
     "@electron/rebuild": "^4.2.0",
-    "electron": "^44.4.5"
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
@@ -22,5 +24,38 @@
     "@xterm/xterm": "^6.0.0",
     "node-pty": "^1.1.0"
   },
-  "productName": "Shoal"
+  "productName": "Shoal",
+  "build": {
+    "appId": "dev.shoal.app",
+    "productName": "Shoal",
+    "copyright": "Copyright © 2026 The Shoal contributors",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "assets/icon.png",
+      "package.json",
+      "!video/**",
+      "!assets/shoal-ad.*",
+      "!brand/**"
+    ],
+    "asarUnpack": [
+      "node_modules/node-pty/**"
+    ],
+    "mac": {
+      "icon": "assets/icon.png",
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "identity": null
+    },
+    "dmg": {
+      "title": "Shoal ${version}"
+    }
+  }
 }

@@ -136,7 +136,7 @@ async function createSession(agent) {
   term.loadAddon(fit);
   term.loadAddon(new WebLinksAddon.WebLinksAddon());
   term.open(el);
-  term.attachCustomKeyEventHandler((e) => !(e.metaKey && /^[tw1-9\[\]]$/.test(e.key)));
+  term.attachCustomKeyEventHandler((e) => !(e.metaKey && /^[tbw1-9\[\]]$/.test(e.key)));
 
   const s = {
     id, agent, shown: agent, term, fit, el, cwd, command,
@@ -391,7 +391,16 @@ function closePalette() {
 }
 const paletteOpen = () => !$('#palette').classList.contains('hidden');
 
+function toggleSidebar(force) {
+  const collapsed = force ?? !document.body.classList.contains('collapsed');
+  document.body.classList.toggle('collapsed', collapsed);
+  store.set('sidebarCollapsed', collapsed);
+  setTimeout(() => sessions.find((s) => s.id === activeId)?.fit.fit(), 400);
+}
+
 function buildStatic() {
+  $('#side-toggle').addEventListener('click', () => toggleSidebar());
+  if (store.get('sidebarCollapsed', false)) toggleSidebar(true);
   $('#quick').innerHTML = AGENTS.slice(0, 4).map((a, i) =>
     `<button class="quick-tile" data-i="${i}">${logoHTML(a)}<span class="label">${a.label}</span></button>`
   ).join('');
@@ -448,6 +457,7 @@ window.addEventListener('keydown', (e) => {
   if (!e.metaKey) return;
   const i = sessions.findIndex((s) => s.id === activeId);
   if (e.key === 't') { e.preventDefault(); openPalette(); }
+  else if (e.key === 'b') { e.preventDefault(); toggleSidebar(); }
   else if (e.key === 'w' && activeId) { e.preventDefault(); closeSession(activeId); }
   else if (/^[1-9]$/.test(e.key)) { const s = sessions[+e.key - 1]; if (s) { e.preventDefault(); activate(s.id); } }
   else if (e.key === ']' && sessions.length) { e.preventDefault(); activate(sessions[(i + 1) % sessions.length].id); }
