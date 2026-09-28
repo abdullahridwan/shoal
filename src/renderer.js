@@ -8,7 +8,7 @@ const AGENTS = [
       { key: 'model', t: 'Model', seg: ['default', 'opus', 'sonnet', 'haiku'], flag: (v) => (v === 'default' ? '' : `--model ${v}`) },
     ],
   },
-  { id: 'hermes', label: 'Hermes', cmd: 'hermes', icon: 'hermesagent', opts: [] },
+  { id: 'hermes', label: 'Hermes', cmd: 'hermes', icon: 'hermesagent', tint: '#8c6a2e', opts: [] },
   {
     id: 'codex', label: 'Codex', cmd: 'codex', icon: 'codex-color', color: true, tint: '#3a3fe6',
     opts: [
@@ -22,11 +22,11 @@ const AGENTS = [
     opts: [{ key: 'yolo', flag: '--yolo', t: 'YOLO mode', d: 'Approve every action automatically', danger: true }],
   },
   {
-    id: 'omp', label: 'Oh My Pi', cmd: 'omp', icon: 'pi',
+    id: 'omp', label: 'Oh My Pi', cmd: 'omp', icon: 'pi', tint: '#1e6f72',
     opts: [{ key: 'cont', flag: '--continue', t: 'Continue', d: 'Pick up the most recent session' }],
   },
-  { id: 'opencode', label: 'OpenCode', cmd: 'opencode', icon: 'opencode', opts: [] },
-  { id: 'ollama', label: 'Ollama', cmd: 'ollama', icon: 'ollama', opts: [] },
+  { id: 'opencode', label: 'OpenCode', cmd: 'opencode', icon: 'opencode', tint: '#3f4a5c', opts: [] },
+  { id: 'ollama', label: 'Ollama', cmd: 'ollama', icon: 'ollama', tint: '#6b4a3a', opts: [] },
   { id: 'shell', label: 'Shell', cmd: '', icon: null, opts: [] },
 ];
 const DETECT_ONLY = { pi: { id: 'pi', label: 'Pi', cmd: 'pi', icon: 'pi' } };

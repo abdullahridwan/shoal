@@ -27,6 +27,21 @@ One accent. Everything else is warm neutrals.
 
 Rules: clay is used sparingly, never as a large fill behind text in the UI. Sage and gold exist only to signal "working" and in the aurora. No pure black or pure white.
 
+## Agent colors
+
+Each agent has one color, used for its Start session button. All take white text; Shell stays neutral and flips to Bone in dark mode.
+
+| Agent | Hex |
+|---|---|
+| Claude Code | `#C4613D` |
+| Codex | `#3A3FE6` |
+| Gemini CLI | `#1F6FE5` |
+| Hermes | `#8C6A2E` (bronze) |
+| Oh My Pi | `#1E6F72` (deep teal) |
+| OpenCode | `#3F4A5C` (slate) |
+| Ollama | `#6B4A3A` (espresso) |
+| Shell | `#1B1A17` (ink) |
+
 ## Type
 
 | Role | Typeface | Notes |
