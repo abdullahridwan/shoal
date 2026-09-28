@@ -8,11 +8,10 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <button id="side-toggle" class="side-toggle" aria-label="Toggle sidebar" title="Toggle sidebar  ⌘B">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="3" /><path d="M9.5 5v14" /></svg>
-  </button>
   <aside id="sidebar">
-    <div class="drag"></div>
+    <div class="drag"><button id="side-toggle" class="side-toggle" aria-label="Toggle sidebar" title="Toggle sidebar  ⌘B">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="3" /><path d="M9.5 5v14" /></svg>
+  </button></div>
     <div class="wordmark">
       <svg class="mark" viewBox="60.6 35 251 242.3" aria-hidden="true"><path class="m-lead" d="M206.622 95L311.622 155.622L206.622 216.244L206.622 95Z"/><path class="m-sage" d="M60.6218 35L165.622 95.6218L60.6218 156.244L60.6218 35Z"/><path class="m-gold" d="M85.6218 156L190.622 216.622L85.6218 277.244L85.6218 156Z"/></svg>
       <span>Shoal</span>
@@ -82,6 +81,7 @@
           <input id="opts-args" spellcheck="false" autocomplete="off" placeholder="--model opus" />
         </div>
         <div class="opts-preview"><span class="prompt">$</span><code id="opts-cmd"></code></div>
+        <button id="start-btn" class="start-btn">Start session <span class="hint">↵</span></button>
       </div>
       <div class="palette-foot">
         <button id="folder-btn" class="folder-btn">

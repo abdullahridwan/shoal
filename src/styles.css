@@ -254,18 +254,19 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 .of-chip:hover { color: var(--ink); box-shadow: 0 0 0 1px var(--line-2); }
 .of-chip.on { color: var(--clay); box-shadow: 0 0 0 1px var(--clay); }
 
-.side-toggle { position: fixed; top: 13px; left: 88px; z-index: 30; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--ink-3); -webkit-app-region: no-drag; transition: background 160ms, color 160ms; }
+.drag { position: relative; }
+.side-toggle { position: absolute; top: 13px; right: 0; z-index: 30; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: var(--ink-3); -webkit-app-region: no-drag; transition: background 160ms, color 160ms; }
 .side-toggle:hover { background: var(--hover); color: var(--ink); }
 .side-toggle svg { width: 17px; height: 17px; }
 #sidebar { transition: width 380ms var(--ease), padding 380ms var(--ease); overflow: hidden; }
 #main { transition: margin 380ms var(--ease); }
 #header { transition: padding 380ms var(--ease); }
 
-body.collapsed #sidebar { width: 76px; padding: 0 12px 16px; }
+body.collapsed #sidebar { width: 92px; padding: 0 14px 16px; }
 body.collapsed .wordmark { padding: 6px 0 22px; justify-content: center; }
 body.collapsed .wordmark span, body.collapsed .new-btn span, body.collapsed .section-label,
 body.collapsed .session .meta, body.collapsed .session .close, body.collapsed .summary { display: none !important; }
-body.collapsed .new-btn { width: 52px; height: 44px; padding: 0; justify-content: center; }
+body.collapsed .new-btn { width: 56px; margin: 0 auto; height: 44px; padding: 0; justify-content: center; }
 body.collapsed .new-btn svg { width: 18px; height: 18px; }
 body.collapsed #sessions { margin: 14px 0 0; padding: 2px; gap: 6px; align-items: center; }
 body.collapsed .session { width: 48px; height: 48px; padding: 0; justify-content: center; flex-shrink: 0; }
@@ -275,4 +276,11 @@ body.collapsed .session .dot, body.collapsed .session:hover .dot { display: bloc
 body.collapsed .session.active .dot { box-shadow: 0 0 0 2px var(--card); }
 body.collapsed .session .dot.attention { box-shadow: 0 0 0 2px var(--stone), 0 0 0 4px rgba(201,100,66,0.25); }
 body.collapsed .side-foot { justify-content: center; padding: 12px 0 0; }
-body.collapsed #header { padding-left: 64px; }
+body.collapsed .drag { height: 84px; }
+body.collapsed .side-toggle { right: auto; left: 18px; top: 44px; }
+
+.start-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: calc(100% - 40px); height: 46px; margin: 0 20px 20px; border-radius: 12px; background: var(--ink); color: var(--paper); font-weight: 500; font-size: 14px; transition: transform 160ms var(--ease), opacity 160ms; }
+.start-btn:hover { opacity: 0.92; }
+.start-btn:active { transform: scale(0.99); }
+.start-btn .hint { background: rgba(255,255,255,0.14); color: inherit; opacity: 0.75; }
+:root[data-theme="dark"] .start-btn .hint { background: rgba(0,0,0,0.12); }

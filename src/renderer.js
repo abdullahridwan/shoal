@@ -417,6 +417,7 @@ function buildStatic() {
     if (!optAgent) $('#palette-input').focus();
   });
   $('#of-choose').addEventListener('click', chooseFolder);
+  $('#start-btn').addEventListener('click', () => optAgent && createSession(optAgent));
   $('#new-btn').addEventListener('click', openPalette);
   $('#theme-btn').addEventListener('click', () => {
     document.documentElement.classList.add('theming');
