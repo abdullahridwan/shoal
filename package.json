@@ -1,6 +1,6 @@
 {
   "name": "shoal",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A calm home for your terminal agents",
   "main": "main.js",
   "scripts": {
