@@ -22,6 +22,7 @@ It is deliberately small. It is not a new terminal emulator. It is real login sh
 - **Launch flags**: per-agent presets like `--dangerously-skip-permissions`, `--continue` or model choice, remembered between launches, with a live command preview
 - **Ambient status**: soft gradients drift across the panel while an agent works, and glow when it needs input
 - **Built-in browser**: each session gets its own browser pane (`⌘L`). Links your agents open, like `npx expo start` then `w`, land there instead of a separate Chrome tab, and URLs in the terminal open there on click
+- **Checks for updates** on launch and from the Shoal menu, and installs them in place
 - **Light and dark mode**, following the system by default
 - **Keyboard first**: `⌘T` new session, `⌘B` hide the sidebar, `⌘1` to `⌘9` jump, `⌘[` / `⌘]` cycle, `⌘W` close, double-click to rename
 

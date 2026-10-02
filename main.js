@@ -1,4 +1,5 @@
 const { app, BrowserWindow, WebContentsView, ipcMain, dialog, nativeTheme, Menu, shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const http = require('http');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -202,11 +203,61 @@ esac
 ipcMain.on('theme:dark', (_e, dark) => win?.setBackgroundColor(dark ? '#131312' : '#f3f1ec'));
 ipcMain.on('chrome:hover', (_e, hovering) => { if (process.platform === 'darwin' && win && !win.isDestroyed()) win.setWindowButtonVisibility(hovering); });
 
+/* auto-update: check GitHub releases, try to install in place, fall back to the releases page */
+const RELEASES_URL = 'https://github.com/abdullahridwan/shoal/releases/latest';
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = false;
+let manualCheck = false;
+
+function checkForUpdates(manual) {
+  if (!app.isPackaged) {
+    if (manual) dialog.showMessageBox(win, { type: 'info', message: 'Updates are only available in the installed app', buttons: ['OK'] });
+    return;
+  }
+  manualCheck = manual;
+  autoUpdater.checkForUpdates().catch((err) => notifyError(err));
+}
+
+function notifyError(err) {
+  if (!manualCheck) return;
+  dialog.showMessageBox(win, {
+    type: 'error', message: "Couldn't check for updates", detail: String(err?.message || err),
+    buttons: ['Open releases page', 'OK'], defaultId: 1,
+  }).then(({ response }) => { if (response === 0) shell.openExternal(RELEASES_URL); });
+}
+
+autoUpdater.on('update-available', (info) => {
+  dialog.showMessageBox(win, {
+    type: 'info', message: `Shoal ${info.version} is available`, detail: 'Download and install it now?',
+    buttons: ['Download', 'Not now'], defaultId: 0,
+  }).then(({ response }) => {
+    if (response !== 0) return;
+    autoUpdater.downloadUpdate().catch(() => {
+      dialog.showMessageBox(win, {
+        type: 'info', message: "Couldn't download the update automatically",
+        detail: 'Opening the releases page instead.', buttons: ['OK'],
+      }).then(() => shell.openExternal(RELEASES_URL));
+    });
+  });
+});
+autoUpdater.on('update-not-available', () => {
+  if (manualCheck) dialog.showMessageBox(win, { type: 'info', message: "You're up to date", detail: `Shoal ${app.getVersion()} is the latest version.`, buttons: ['OK'] });
+});
+autoUpdater.on('error', (err) => notifyError(err));
+autoUpdater.on('update-downloaded', (info) => {
+  dialog.showMessageBox(win, {
+    type: 'info', message: `Shoal ${info.version} is ready to install`, detail: 'Restart now to finish updating?',
+    buttons: ['Restart now', 'Later'], defaultId: 0,
+  }).then(({ response }) => { if (response === 0) { quitting = true; autoUpdater.quitAndInstall(); } });
+});
+
 app.whenReady().then(() => {
   if (process.platform === 'darwin') app.dock.setIcon(path.join(__dirname, 'assets', 'icon.png'));
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { label: 'Shoal', submenu: [
       { role: 'about', label: 'About Shoal' },
+      { type: 'separator' },
+      { label: 'Check for Updates…', click: () => checkForUpdates(true) },
       { type: 'separator' },
       { role: 'hide', label: 'Hide Shoal' },
       { role: 'hideOthers' },
@@ -220,6 +271,7 @@ app.whenReady().then(() => {
   ]));
   startOpener();
   createWindow();
+  setTimeout(() => checkForUpdates(false), 6000);
 });
 function killAll() {
   quitting = true;
