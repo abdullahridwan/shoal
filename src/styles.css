@@ -288,7 +288,7 @@ body.dragging-pane * { user-select: none; }
 #header { transition: padding 380ms var(--ease); }
 
 body.collapsed #sidebar { width: 68px; padding: 0 10px 14px; }
-body.collapsed .wordmark { padding: 4px 0 14px; justify-content: center; }
+body.collapsed .wordmark { padding: 34px 0 10px; justify-content: center; }
 body.collapsed .wordmark .mark { width: 20px; height: 19px; }
 body.collapsed .wordmark span, body.collapsed .new-btn span, body.collapsed .section-label,
 body.collapsed .session .meta, body.collapsed .session .close, body.collapsed .summary { display: none !important; }
@@ -303,7 +303,7 @@ body.collapsed .session.active .dot { box-shadow: 0 0 0 2px var(--card); }
 body.collapsed .session .dot.attention { box-shadow: 0 0 0 2px var(--stone), 0 0 0 4px rgba(201,100,66,0.25); }
 body.collapsed .side-foot { justify-content: center; padding: 10px 0 0; }
 body.collapsed .drag { height: 40px; }
-body.collapsed .side-toggle { right: auto; left: 20px; top: 6px; }
+body.collapsed .side-toggle { right: auto; left: 20px; top: 38px; }
 
 .start-btn { --c: #1b1a17; --fg: #fbfaf7;
   --deep: color-mix(in srgb, var(--c) 72%, #0b0a09);
